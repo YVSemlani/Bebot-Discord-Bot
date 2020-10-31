@@ -369,7 +369,7 @@ class AnimeData(commands.Cog):
         return ids[-1]
     async def anidetails(self, ident):
         data = requests.get("https://cdn.animenewsnetwork.com/encyclopedia/api.xml?anime=" + ident).text
-        ani = bs4.BeautifulSoup(data, 'lxml')
+        ani = bs4.BeautifulSoup(data, 'html5lib')
         Plot = ani.find('info', {'type':'Plot Summary'}).text
         Plot = Plot[: len(Plot) - len("<em class=de-emphasized>(from manga)</em>") - 1]
         Rating = str(ani.find('ratings')['bayesian_score']) + "/10"
