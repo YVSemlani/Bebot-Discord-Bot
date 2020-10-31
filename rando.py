@@ -391,10 +391,11 @@ class Anime(commands.Cog):
             print(ident)
             Plot, Rating, last_episode, Url = await self.data.anidetails(ident)
             print(Url)
-        except:
-            print("Error Encountered")
+        except Exception as e:
+            print("Error Encountered", e)
             await ctx.send("正しいダンバスを綴る")
             await ctx.send("^ Spell Right Dumbass ^")
+            return
         embed = discord.Embed(title=query, description=query + " details.", color=0x88B04B)
         embed.add_field(name="Plot", value= "```"+ Plot + "```", inline=False)
         embed.add_field(name="Rating", value="```" + Rating + "```", inline=False)
