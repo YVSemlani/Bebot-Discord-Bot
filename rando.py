@@ -560,7 +560,7 @@ class User():
         return self.balance.hand
 
     def collected(self):
-        self.daily = dt.datetime.now()
+        self.daily = [dt.datetime.now()]
         return
 
     def last_collected(self):
