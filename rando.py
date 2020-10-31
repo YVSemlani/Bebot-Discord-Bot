@@ -354,7 +354,7 @@ class AnimeData(commands.Cog):
         data = requests.get("https://cdn.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=anime&nlist=all&name=" + query)
         data = data.text
         print("Checkpoint 1")
-        soup = bs4.BeautifulSoup(data, 'lxml')
+        soup = bs4.BeautifulSoup(data, 'html5lib')
         items = soup.findAll('item')
         showid = {}
         for x in items:
