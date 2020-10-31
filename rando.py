@@ -354,7 +354,7 @@ class AnimeData(commands.Cog):
         data = requests.get("https://cdn.animenewsnetwork.com/encyclopedia/reports.xml?id=155&type=anime&nlist=all&name=" + query)
         data = data.text
         print("Checkpoint 1")
-        soup = bs4.BeautifulSoup(data, 'lxml')
+        soup = bs4.BeautifulSoup(data, 'html5lib')
         items = soup.findAll('item')
         showid = {}
         for x in items:
@@ -369,7 +369,7 @@ class AnimeData(commands.Cog):
         return ids[-1]
     async def anidetails(self, ident):
         data = requests.get("https://cdn.animenewsnetwork.com/encyclopedia/api.xml?anime=" + ident).text
-        ani = bs4.BeautifulSoup(data, 'lxml')
+        ani = bs4.BeautifulSoup(data, 'html5lib')
         Plot = ani.find('info', {'type':'Plot Summary'}).text
         Plot = Plot[: len(Plot) - len("<em class=de-emphasized>(from manga)</em>") - 1]
         Rating = str(ani.find('ratings')['bayesian_score']) + "/10"
@@ -391,10 +391,11 @@ class Anime(commands.Cog):
             print(ident)
             Plot, Rating, last_episode, Url = await self.data.anidetails(ident)
             print(Url)
-        except:
-            print("Error Encountered")
+        except Exception as e:
+            print("Error Encountered", e)
             await ctx.send("正しいダンバスを綴る")
             await ctx.send("^ Spell Right Dumbass ^")
+            return
         embed = discord.Embed(title=query, description=query + " details.", color=0x88B04B)
         embed.add_field(name="Plot", value= "```"+ Plot + "```", inline=False)
         embed.add_field(name="Rating", value="```" + Rating + "```", inline=False)
@@ -560,7 +561,7 @@ class User():
         return self.balance.hand
 
     def collected(self):
-        self.daily = dt.datetime.now()
+        self.daily = [dt.datetime.now()]
         return
 
     def last_collected(self):
