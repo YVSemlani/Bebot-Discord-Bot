@@ -12,13 +12,11 @@ services:
         expose:
             - 2333
     Bebotpy:
-        image: halfblood1223/bebot:v1.3
+        image: halfblood1223/bebot:v1.4
         container_name: bebotpy
         restart: unless-stopped
         networks:
             - bebot-network
-            - lavalink
-        depends_on: 
             - lavalink
         environment:
             - lavahost=lavalink
