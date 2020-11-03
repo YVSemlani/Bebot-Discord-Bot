@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import nest_asyncio
 import wavelink
 import asyncio
 from asyncio import sleep
@@ -12,10 +11,6 @@ import random
 import urllib
 from pretty_help import PrettyHelp, Navigation
 import datetime as dt
-import emoji
-
-#jupyter
-nest_asyncio.apply()
 
 
 #setup
@@ -51,7 +46,7 @@ class Mod(commands.Cog):
         await ctx.channel.purge(limit=amount)
         await sleep(1)
         await ctx.send(f"Cleared {str(amount)} messages.")
-        await ctx.channel.purge(limit=2)
+        await ctx.channel.purge(limit=3)
         return
     
     @commands.has_permissions(kick_members=True)
@@ -60,6 +55,7 @@ class Mod(commands.Cog):
         """Kick the specified user."""
         await member.kick(reason=reason)
         await ctx.send(f"Kicked <@{member.id}>. GTFO dumb dumb.")
+        await member.send(f"You have been kicked from {ctx.guild.name}! You were a bad boi!")
     
     @commands.has_permissions(ban_members=True)
     @commands.command()
@@ -67,11 +63,12 @@ class Mod(commands.Cog):
         """Ban the specified user."""
         await member.ban(reason=reason)
         await ctx.send(f"Banned <@{member.id}>. GTFO dumb dumb.")
+        await member.send(f"You have been banned from {ctx.guild.name}! Dont do whatever you did!")
     
     @commands.has_permissions(ban_members=True)
     @commands.command()
     async def unban(self, ctx, ident):
-        """Unban the specified user."""
+        """Unban the specified user. Takes in user IDs. Requires developer mode to access user ID."""
         try:    
             print(type(ident))
             ident = int(ident)
@@ -83,6 +80,7 @@ class Mod(commands.Cog):
         print(type(user), user)
         await ctx.guild.unban(user)
         await ctx.send(f"{user.mention} has been unbanned. You lucky bastard.")
+        await member.send(f"You have been unbanned from {ctx.guild.name}! Tread lightly...")
     
     @commands.has_permissions(manage_guild=True)
     @commands.command()
@@ -96,18 +94,17 @@ class Mod(commands.Cog):
                 await channel.set_permissions(muted, send_messages=False,
                                               read_message_history=True,
                                               read_messages=True, speak=False)
-            await member.add_roles(muted) # adds newly created muted role
-            await ctx.send(f"{member.mention} has been muted! What a numbskull XD.")
-        else:
-            await member.add_roles(role) # adds already existing muted role
-            await ctx.send(f"{member.mention} has been muted! What a numbskull XD.")
-    
+        await member.add_roles(role) # adds already existing muted role
+        await ctx.send(f"{member.mention} has been muted! What a numbskull XD.")
+        await member.send(f"You have been muted in {ctx.guild.name}! Do better next time!")
+        
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def unmute(self, ctx, member : discord.Member):
         """Unmute the specified member."""
         await member.remove_roles(discord.utils.get(ctx.guild.roles, name="Muted"))
         await ctx.send(f"{member} has been unmuted. Maybe you were a good boy. Heres a :cookie: :)")
+        await member.send(f"You have been unmuted in {ctx.guild.name}! Good Job :)")
     
     @commands.has_permissions(manage_guild=True)
     @commands.command()
@@ -406,6 +403,9 @@ class AnimeData(commands.Cog):
         Url = "https://www.animenewsnetwork.com/encyclopedia/anime.php?id=" + ident
         return Plot, Rating, last_episode, Url
 
+    async def anistream(self, query, episode):
+        query = query.replace(" ", "-")
+        return f"https://www9.gogoanimehub.tv/{query}-episode-{episode}"
 class Anime(commands.Cog):
     """Anime Commands"""
     def __init__(self, bot):
@@ -433,6 +433,14 @@ class Anime(commands.Cog):
         await ctx.send(embed=embed)
         return
     
+    @commands.command()
+    async def anistream(self, ctx, episode, *, query):
+        self.data = self.bot.get_cog('AnimeData')
+        url = await self.data.anistream(query, episode)
+        embed = discord.Embed(title=f"Results for {query}", description=url, color=0x88B04B)
+        embed.add_field(name="If this query didnt return a valid url then try adding tv to the end of it.", value="https://www9.gogoanimehub.tv", inline=False)
+        embed.set_thumbnail(url=url)
+        await ctx.send(embed=embed)
 class GamingData(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -521,6 +529,26 @@ class SearchData(commands.Cog):
             data.append(post)
         finalpost = data[random.randint(0,24)]
         return finalpost
+    
+    async def porndata(self, query):
+        query = query.replace(" ", "+")
+        base = "https://www.pornhub.com"
+        url = "https://www.pornhub.com/video/search?search=" + query
+        resp = requests.get(url)
+        soup = bs4.BeautifulSoup(resp.text, 'html5lib')
+        findata = soup.findAll('a', {"class":"fade fadeUp videoPreviewBg linkVideoThumb js-linkVideoThumb img"})
+        vids = []
+        img = []
+        try:
+            for x in findata:
+                img.append(x.find('img')["data-src"])
+                vids.append(x["href"])
+        except:
+            pass
+        vid = random.randint(0, len(vids)-1)
+        suffix = links[vid]
+        thumb = img[vid]
+        return base + suffix, thumb
 
 class Search(commands.Cog):
     """Search Commands"""
@@ -574,6 +602,17 @@ class Search(commands.Cog):
                     print(e)
             return
         await ctx.send(embed=embed)
+        
+    @commands.command()
+    async def safesearch(self, ctx, *, query):
+        """Gives you the safest videos on the internet based on your search"""
+        if not ctx.message.channel.is_nsfw():
+            await ctx.send("Take your horniness elsewhere.")
+            return
+        url, img = porndata(query)
+        embed = discord.Embed(title=f"Results for {query}", description=url, color=0x88B04B)
+        embed.set_thumbnail(url=img)
+        await ctx.send(embed=embed)
 class User():
     def __init__(self, user_id):
         self.user_id = user_id
@@ -623,11 +662,18 @@ class UserBalance(commands.Cog):
             return True
         else:
             return False
-    async def validateavailable(self, user_id, amount):
-        if amount <= self.balancetracker[user_id].hand():
-            return True
-        else:
-            return False
+    async def validateavailable(self, user_id, destination, amount):
+        destination = destination.upper()
+        if destination == "HAND":    
+            if amount <= self.balancetracker[user_id].hand():
+                return True
+            else:
+                return False
+        elif destination == "BANK":
+            if amount <= self.balancetracker[user_id].bank():
+                return True
+            else:
+                return False
     async def leaderboards(self):
         print(self.balancetracker.keys())
         self.tophand, self.topbank = [], []
@@ -706,7 +752,7 @@ class BlackJack(commands.Cog):
         player_total = await self.total(player_hand)
         if dealer_total == 21:
             return "BlackJack by the dealer. You Lose..."
-        elif player_total == 21:
+        elif self.total(player_hand) == 21:
             return "BlackJack by the player. You Win..."
         elif dealer_total > 21:
             return "Dealer Bust. You Win..."
@@ -728,7 +774,7 @@ class BlackJack(commands.Cog):
         self.games[author.id]["playerhand"] = await self.deal(self.games[author.id]["bjdeck"])
         self.games[author.id]["total"] = await self.total(self.games[author.id]["playerhand"])
         self.games[author.id]["embed"] = discord.Embed(title=f"{author.name}s BJ game", description=f"Playing for {amount}$", color=0x88B04B)
-        self.games[author.id]["embed"].add_field(name=f"Dealer is showing", value=f"**{self.games[author.id][dealerhand][0]}**", inline=False)
+        self.games[author.id]["embed"].add_field(name=f"Dealer is showing", value=f"**{self.games[author.id][dealerhand]}**", inline=False)
         self.games[author.id]["embed"].add_field(name=f"Your hand is", value=f"**{self.games[author.id][playerhand]}**", inline=False)
         self.games[author.id]["hit"] = None
         self.games[author.id]["message"] = await channel.send(embed=self.games[author.id]["embed"])
@@ -753,7 +799,7 @@ class BlackJack(commands.Cog):
             self.games[author.id]["state"] = await self.score(self.games[author.id]["dealerhand"], self.games[author.id]["playerhand"])
             self.games[author.id]["embed"].add_field(name=f"Dealer is showing", value=f'**{self.games[author.id][dealerhand]}**', inline=False)  
             self.games[author.id]["embed"].add_field(name=self.games[author.id]["state"], value=f"**{amount}$$$**", inline=False)
-            await self.games[author.id]["message"].edit(embed=self.games[author.id]["embed"])
+            self.games[author.id]["message"].edit(embed=self.games[author.id]["embed"])
             return self.games[author.id]["state"]
         self.games[author.id]["totaldealer"] = await self.total(self.games[author.id]["dealerhand"])
         while self.games[author.id]["totaldealer"] < 17:
@@ -779,7 +825,6 @@ class BlackJack(commands.Cog):
                 await self.games[user.id].remove_reaction(reaction.emoji, user)
         except:
             print("Non Black Jack Reaction")
-            print(self.games[user.id]["hit"])
 class Economy(commands.Cog):
     """Economy Commands"""
     def __init__(self, bot):
@@ -791,6 +836,7 @@ class Economy(commands.Cog):
     
     @commands.command()
     async def daily(self, ctx):
+        """Daily reward of 5000 woolongs will be sent to your hand."""
         user_id = ctx.author.id
         try:
             await self.UB.get_user(user_id)
@@ -800,16 +846,16 @@ class Economy(commands.Cog):
             await self.UB.deposit(user_id, "hand", 5000)
             await self.UB.collected(user_id)
             print("Daily Collected")
-            await ctx.send("Daily rations of 5000 has been sent to your hand!")
+            await ctx.send("Daily rations of 5000 woolong has been sent to your hand!")
         else:
             await ctx.send("You've already collected today GTFO of my shop!")
     
-    @commands.command()
-    async def balance(self, ctx, user):
+    @commands.command(aliases=["bal"])
+    async def balance(self, ctx, user=None):
         """Returns the balance of the @mentioned user or if all returns the leaderboards for the Economy."""
-        if user == None and (user != "All" or user != "all"):
-            await ctx.send("Specify a real user dumbass!")
-            return
+        if user == None:
+            user = ctx.message.author
+            user_id = ctx.message.author.id
         elif user == "All" or user == "all":
             embed = await self.UB.leaderboards()
             banktop = embed[0]
@@ -817,9 +863,10 @@ class Economy(commands.Cog):
             await ctx.send(embed=banktop)
             await ctx.send(embed=handtop)
             return
-        user_id = int(user[3:len(user) - 1])
-        user = await self.bot.fetch_user(user_id)
-        user_id = user.id
+        else:
+            user_id = int(user[3:len(user) - 1])
+            user = await self.bot.fetch_user(user_id)
+            user_id = user.id
         try:
             await self.UB.get_user(user_id)
         except:
@@ -833,6 +880,7 @@ class Economy(commands.Cog):
         
     @commands.command()
     async def give(self, ctx, user, amount):
+        """Be a generous one and give some money to someone else. Funded by Daddy Bebot of course."""
         user_id = int(user[3:len(user) - 1])
         user = await self.bot.fetch_user(user_id)
         reciever = user.id
@@ -860,12 +908,16 @@ class Economy(commands.Cog):
         
     @commands.command()
     async def bj(self, ctx, amount):
+        """Play some blackjack at the Bebot Casino."""
         self.bj = self.bot.get_cog('BlackJack')
+        if amount < 0:
+            await ctx.send("You think your smart huh. You cant cheat the almighty Bebot.")
+            return
         try:
             await self.UB.get_user(ctx.author.id)
         except:
             await self.UB.create_user(ctx.author.id)
-        avail = await self.UB.validateavailable(ctx.author.id, int(amount))
+        avail = await self.UB.validateavailable(ctx.author.id, "hand", int(amount))
         if not avail:
             await ctx.send("Hold your horses big better. You don't have the facilities for that.")
             return
@@ -880,6 +932,77 @@ class Economy(commands.Cog):
         if "Lose" in state:
             await self.UB.extract(ctx.author.id, "hand", int(amount))
             return
+
+    @commands.command()
+    async def tohand(self, ctx, amount):
+        try:
+            avail = await self.UB.validateavailable(ctx.author.id, "bank", int(amount))
+        except Exception as e:
+            print(e)
+            await ctx.send("You didn't enter a number to transfer")
+            return
+        if avail:
+            await self.UB.extract(ctx.author.id, "bank", int(amount))
+            await self.UB.deposit(ctx.author.id, "hand", int(amount))
+            await ctx.send(f"{amount}$ was transferred to your hand.")
+        else:
+            await ctx.send("Sry but you dont have the funds for that ")
+            
+    @commands.command()
+    async def tobank(self, ctx, amount):
+        try:
+            avail = await self.UB.validateavailable(ctx.author.id, "hand", int(amount))
+        except Exception as e:
+            print(e)
+            await ctx.send("You didn't enter a number to transfer")
+            return
+        if avail:
+            await self.UB.extract(ctx.author.id, "hand", int(amount))
+            await self.UB.deposit(ctx.author.id, "bank", int(amount))
+            await ctx.send(f"{amount}$ was transferred to your bank.")
+        else:
+            await ctx.send("Sry but you dont have the funds for that ")
+       
+class XP(commands.Cog):
+    """XP Commands"""
+    def __init__(self, bot):
+        self.bot = bot
+        self.users = {}
+        self.levels = {}
+        self.userlevel = {}
+    @commands.Cog.listener()
+    async def on_ready(self):
+        for x in range(100 , 10001, 100):
+            self.levels[x] = "Level " + str(x // 100)
+        print(self.levels)
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author == self.bot.user:
+            return
+        try:
+            self.users[message.author.id] += 5
+        except:
+            self.users[message.author.id] = 0
+        if self.users[message.author.id] in self.levels.keys():
+            self.userlevel[message.author.id] = self.levels[self.users[message.author.id]]
+            await message.channel.send(f"{message.author.mention} has attained {self.levels[self.users[message.author.id]]}")
+    
+    @commands.command()
+    async def level(self, ctx, user=None):
+        """Get your level in the current server"""
+        if user == None:
+            user = ctx.message.author
+        else:
+            user = user[3:len(user)-1]
+            print(user)
+            user = await self.bot.fetch_user(int(user))
+        try:
+            level = self.userlevel[user.id]
+        except:
+            self.userlevel[user.id] = "No Level"
+            level = self.userlevel[user.id]
+        await ctx.send(f"{user.mention} is {level}")
+        
 client.add_cog(Mod(client))
 client.add_cog(Music(client))
 client.add_cog(QueueSystem(client))
@@ -893,4 +1016,5 @@ client.add_cog(Search(client))
 client.add_cog(UserBalance(client))
 client.add_cog(Economy(client))
 client.add_cog(BlackJack(client))
+client.add_cog(XP(client))
 client.run('NzY5NDA5MTMwMzAwNDQwNTk2.X5OmFw.omDEZarxQyWWRY-Y2LPbEWjhi_0')
