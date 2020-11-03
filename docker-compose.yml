@@ -12,7 +12,7 @@ services:
         expose:
             - 2333
     Bebotpy:
-        image: halfblood1223/bebot:v1.5
+        image: halfblood1223/bebot:v1.6
         container_name: bebotpy
         restart: unless-stopped
         networks:
