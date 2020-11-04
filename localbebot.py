@@ -610,7 +610,7 @@ class Search(commands.Cog):
         if not ctx.message.channel.is_nsfw():
             await ctx.send("Take your horniness elsewhere.")
             return
-        url, img = self.SD.porndata(query)
+        url, img = await self.SD.porndata(query)
         embed = discord.Embed(title=f"Results for {query}", description=url, color=0x88B04B)
         embed.set_thumbnail(url=img)
         await ctx.send(embed=embed)
