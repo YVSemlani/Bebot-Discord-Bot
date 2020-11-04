@@ -911,7 +911,7 @@ class Economy(commands.Cog):
     async def bj(self, ctx, amount):
         """Play some blackjack at the Bebot Casino."""
         self.bj = self.bot.get_cog('BlackJack')
-        if amount < 0:
+        if int(amount) < 0:
             await ctx.send("You think your smart huh. You cant cheat the almighty Bebot.")
             return
         try:
