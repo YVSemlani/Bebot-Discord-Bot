@@ -606,10 +606,11 @@ class Search(commands.Cog):
     @commands.command()
     async def safesearch(self, ctx, *, query):
         """Gives you the safest videos on the internet based on your search"""
+        self.SD = self.bot.get_cog('SearchData')
         if not ctx.message.channel.is_nsfw():
             await ctx.send("Take your horniness elsewhere.")
             return
-        url, img = porndata(query)
+        url, img = self.SD.porndata(query)
         embed = discord.Embed(title=f"Results for {query}", description=url, color=0x88B04B)
         embed.set_thumbnail(url=img)
         await ctx.send(embed=embed)
