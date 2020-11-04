@@ -546,7 +546,7 @@ class SearchData(commands.Cog):
         except:
             pass
         vid = random.randint(0, len(vids)-1)
-        suffix = links[vid]
+        suffix = vids[vid]
         thumb = img[vid]
         return base + suffix, thumb
 
