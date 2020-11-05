@@ -16,8 +16,9 @@ import datetime as dt
 #setup
 intents = discord.Intents.default()
 intents.members = True
-client = commands.Bot(command_prefix="b.", intents=intents, help_command=PrettyHelp(color=0x88B04B, active=60))
+client = commands.Bot(command_prefix="b.", intents=intents, case_insensitive=True)
 client.wavelink = wavelink.Client(bot=client)
+client.remove_command('help')
 
 @client.event
 async def on_ready():
@@ -33,20 +34,22 @@ class Mod(commands.Cog):
     @commands.command()
     async def nuke(self, ctx):
         """Clear up to 1000 messages. Creates major lag."""
+        await ctx.message.delete()
         await ctx.channel.purge(limit=1000)
         await sleep(1)
-        await ctx.send("Site of a nuke")
-        await ctx.channel.purge(limit=1)
+        message = await ctx.send("Site of a nuke")
+        await message.delete(delay=10)
         return
     
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def clear(self, ctx, amount=5):
         """Clear x amount of messages. X defaults to 5"""
+        await ctx.message.delete()
         await ctx.channel.purge(limit=amount)
         await sleep(1)
-        await ctx.send(f"Cleared {str(amount)} messages.")
-        await ctx.channel.purge(limit=3)
+        message = await ctx.send(f"Cleared {str(amount)} messages.")
+        await message.delete(delay=10)
         return
     
     @commands.has_permissions(kick_members=True)
@@ -611,7 +614,7 @@ class Search(commands.Cog):
             await ctx.send("Take your horniness elsewhere.")
             return
         url, img = await self.SD.porndata(query)
-        embed = discord.Embed(title=f"Results for {query}", description=url, color=0x88B04B)
+        embed = discord.Embed(title=f"Results for {query}", description=" ", color=0x88B04B, url=url)
         embed.set_thumbnail(url=img)
         await ctx.send(embed=embed)
 class User():
@@ -753,7 +756,7 @@ class BlackJack(commands.Cog):
         player_total = await self.total(player_hand)
         if dealer_total == 21:
             return "BlackJack by the dealer. You Lose..."
-        elif self.total(player_hand) == 21:
+        elif player_total == 21:
             return "BlackJack by the player. You Win..."
         elif dealer_total > 21:
             return "Dealer Bust. You Win..."
@@ -973,15 +976,14 @@ class XP(commands.Cog):
         self.userlevel = {}
     @commands.Cog.listener()
     async def on_ready(self):
-        for x in range(100 , 10001, 100):
+        for x in range(100 , 100001, 100):
             self.levels[x] = "Level " + str(x // 100)
-        print(self.levels)
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author == self.bot.user:
             return
         try:
-            self.users[message.author.id] += 5
+            self.users[message.author.id] += 2.5
         except:
             self.users[message.author.id] = 0
         if self.users[message.author.id] in self.levels.keys():
@@ -1002,8 +1004,64 @@ class XP(commands.Cog):
         except:
             self.userlevel[user.id] = "No Level"
             level = self.userlevel[user.id]
-        await ctx.send(f"{user.mention} is {level}")
-        
+        embed = discord.Embed(title=f"{user.name} is {level}", description="Each level requires 100 points. You get 2.5 points per message you send.", color=0x88B04B)
+        await ctx.send(embed=embed)
+
+class Help(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command()
+    async def help(self, ctx, query=None):
+        if query == None:
+            embed = discord.Embed(title="Bebot Help Menu", description="Everything Bebot can do.", color=0x88B04B)
+            embed.set_thumbnail(url="https://i.pinimg.com/originals/01/2e/71/012e716ba09bab32c9f3ea163b7663af.gif")
+            embed.add_field(name="Mod Commands", value="Commands available only to people with permission to do these things manually. Useful for Moderators.", inline=False)
+            embed.add_field(name="Music Commands", value="Commands for Playing Music", inline=False)
+            embed.add_field(name="Anime Commands", value="Commands for Anime. Anything anime related is here.", inline=False)
+            embed.add_field(name="Gaming Commands", value="Commands for Gaming. Do things like look up your stats or see active streams.", inline=False)
+            embed.add_field(name="Economy Commands", value="Commands for your $$$. Do things like play BlackJack and collect money daily", inline=False)
+            embed.add_field(name="XP Commands", value="Check what level you are and the top leaders of the Bebot Level game.", inline=False)
+            embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+            await ctx.send(embed=embed)
+            return
+        else:
+            query = query.upper()
+            if query == "MOD":
+                embed = discord.Embed(title="Mod Help Menu", description="All the mod commands Bebot has.", color=0x88B04B)
+                embed.set_thumbnail(url="https://i.pinimg.com/originals/01/2e/71/012e716ba09bab32c9f3ea163b7663af.gif")
+                embed.add_field(name="Clear", value="Clears the specified amount of messages. Defaults to 5.", inline=False)
+                embed.add_field(name="Nuke", value="Clears 1000 messages. Causes major lag. Use at your own risk.", inline=False)
+                embed.add_field(name="Kick", value="Kicks specified member from the server.", inline=False)
+                embed.add_field(name="Ban", value="Bans specified member from the server.", inline=False)
+                embed.add_field(name="Unban", value="Unbans the specified member from the server. Takes in an @mention or an id number. An id is not the 4 digits at the end of a username.", inline=False)
+                embed.add_field(name="Mute", value="Mutes the specified member. Gives them the mute role and text mutes them as well as voice muting them. If they are in a VC they need to leave before voice mute takes effect.", inline=False)
+                embed.add_field(name="Unmute", value="Unmutes the specified member. Takes away the unmuted role. If they are in a VC they need to leave for it to be active.", inline=False)
+                embed.add_field(name="Welcome", value="Sets up a welcome message for new members in a specified channel. Used by typing b.welcome on #textchannel or b.welcome off #textchannel.", inline=False)
+                embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+                await ctx.send(embed=embed)
+                return
+            elif query == "MUSIC":
+                embed = discord.Embed(title="Music Help Menu", description="All the Music commands Bebot has.", color=0x88B04B)
+                embed.set_thumbnail(url="https://i.pinimg.com/originals/01/2e/71/012e716ba09bab32c9f3ea163b7663af.gif")
+                embed.add_field(name="Join", value="Joins the users current voice channel.", inline=False)
+                embed.add_field(name="Leave/Stop", value="Leaves the bots current voice channel.", inline=False)
+                embed.add_field(name="Play", value="Play the specified song. Use b.play dont stop believing or b.play video/playlist url", inline=False)
+                embed.add_field(name="Pause", value="Pause the current playing song.", inline=False)
+                embed.add_field(name="Unpause/Resume", value="Resume the current paused song.", inline=False)
+                embed.add_field(name="Queue", value="Show the current queue.", inline=False)
+                embed.add_field(name="Volume", value="Set the volume of the current player to a number. IE b.volume 10 sets the volume to 10.")
+                embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+                await ctx.send(embed=embed)
+                return
+            elif query == "ANIME":
+                embed = discord.Embed(title="Anime Help Menu", description="All the Music commands Bebot has.", color=0x88B04B)
+                embed.set_thumbnail(url="https://i.pinimg.com/originals/01/2e/71/012e716ba09bab32c9f3ea163b7663af.gif")
+                embed.add_field(name="Anisearch", value="Get data of an anime by it's name. Spelling is very finnicky so try spelling it different ways. Capitalize the first letter.", inline=False)
+                embed.add_field(name="Anistream", value="Get a stream of an anime by its name and episode number. Summoned using b.anistream")
+                embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+                await ctx.send(embed=embed)
+                return
 client.add_cog(Mod(client))
 client.add_cog(Music(client))
 client.add_cog(QueueSystem(client))
@@ -1018,4 +1076,5 @@ client.add_cog(UserBalance(client))
 client.add_cog(Economy(client))
 client.add_cog(BlackJack(client))
 client.add_cog(XP(client))
+client.add_cog(Help(client))
 client.run('NzY5NDA5MTMwMzAwNDQwNTk2.X5OmFw.omDEZarxQyWWRY-Y2LPbEWjhi_0')
