@@ -1096,7 +1096,7 @@ class Help(commands.Cog):
                 return
             elif query == "ECONOMY" or query == "ECON":
                 embed = discord.Embed(title="Economy Help Menu", description="All the Economy commands Bebot has.", color=0x88B04B)
-                embed.set_thumbnail(url="https://64.media.tumblr.com/7d3ebbb1f32cf5296d4555a1fc182ac0/cb4a12f342102665-14/s400x600/bf7007b488dfea5a98724210ebfd29829dd9d099.gifv")
+                embed.set_thumbnail(url="https://i.pinimg.com/originals/bb/a9/ed/bba9ed0e94dc334cdc385122ecdacc13.gif")
                 embed.add_field(name="Daily", value="Get your 5000 woolongs every 24 hours. Summoned using b.daily", inline=False)
                 embed.add_field(name="ToHand", value="Send money from your bank to your hand. Summoned using b.tohand amount.", inline=False)
                 embed.add_field(name="ToBank", value="Send money from your hand to your bank. Summoned using b.tobank amount.", inline=False)
