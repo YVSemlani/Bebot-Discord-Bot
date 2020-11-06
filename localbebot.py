@@ -309,6 +309,9 @@ class Music(commands.Cog):
                 print(e)
                 await ctx.send("Join a voice channel motherfucker!!!")
                 return
+        if ctx.author.VoiceChannel == None:
+            await ctx.send("Sorry to control the music you have to be in a VC.")
+            return
         await ctx.send(embed=await self.bot.get_cog('songdata').songdata(query, ctx.guild.id))
         queue = await self.bot.QueueSystem.get_queue(ctx.guild.id)
         channel = await self.bot.QueueSystem.get_channel(ctx.guild.id)
