@@ -326,7 +326,7 @@ class Music(commands.Cog):
             elapsed = 0
             while queue.latest() == song:
                 await sleep(1)
-                elapsed += 750
+                elapsed += 975
                 if elapsed > song.length:
                     queue.skip()
     
