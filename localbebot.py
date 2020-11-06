@@ -1094,7 +1094,7 @@ class Help(commands.Cog):
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
                 return
-            elif query == "Economy" or query == "Econ":
+            elif query == "ECONOMY" or query == "ECON":
                 embed = discord.Embed(title="Economy Help Menu", description="All the Economy commands Bebot has.", color=0x88B04B)
                 embed.set_thumbnail(url="https://64.media.tumblr.com/7d3ebbb1f32cf5296d4555a1fc182ac0/cb4a12f342102665-14/s400x600/bf7007b488dfea5a98724210ebfd29829dd9d099.gifv")
                 embed.add_field(name="Daily", value="Get your 5000 woolongs every 24 hours. Summoned using b.daily", inline=False)
