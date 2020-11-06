@@ -11,6 +11,7 @@ import random
 import urllib
 from pretty_help import PrettyHelp, Navigation
 import datetime as dt
+import sys
 
 
 #setup
@@ -210,6 +211,7 @@ class songdata(commands.Cog):
                 embed.add_field(name=f"{track.title}", value=f"Link to [{track.title}]({track.uri})", inline=False)
                 queue = await self.bot.QueueSystem.get_queue(guild_id)
                 queue.add(track)
+            print(queue.data())
             return embed
         elif url_rx.match(query):
             print("Song searching now")
@@ -366,9 +368,9 @@ class Music(commands.Cog):
             y = 0
             for x in queue.data():
                 y += 1
-                if len(queue.data()) < 10:
-                    embed.add_field(name=f"{x.title}", value=f"Made by: [{x.author}]({x.uri}); Length: {round(x.length / 60000)};", inline=False)
-                elif y == 10:
+                print(x.title.encode(sys.stdout.encoding, errors='replace'))
+                embed.add_field(name=f"{x.title}", value=f"Made by: [{x.author}]({x.uri}); Length: {round(x.length / 60000)};", inline=False)
+                if y == 10:
                     y = 0
                     await ctx.send(embed=embed)
                     embed = discord.Embed(title=f"{ctx.guild.name}'s queue", description="Song Queue", color=0x88B04B)
