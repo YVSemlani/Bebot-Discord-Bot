@@ -583,11 +583,12 @@ class Search(commands.Cog):
         except Exception as e:
             print(e)
             await ctx.send("Sub doesn't exist!!!")
-        print(finalpost.permalink)
+            return
         if not ctx.message.channel.is_nsfw():
             if finalpost.over_18:
                 await ctx.send("Not an nsfw channel bud. Begone horny.")
                 return
+        print(finalpost.permalink)
         embed = discord.Embed(title=finalpost.title, description=f"Upvotes: {finalpost.score}\n{finalpost.selftext}", color=0x88B04B, url=f"https://reddit.com{finalpost.permalink}")
         embed.set_footer(text=f"{finalpost.author} posted this in r/{finalpost.subreddit.display_name}")
         print(finalpost.selftext, finalpost.url, finalpost.media_embed)
