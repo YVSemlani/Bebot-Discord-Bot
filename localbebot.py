@@ -413,6 +413,22 @@ class Anime(commands.Cog):
     """Anime Commands"""
     def __init__(self, bot):
         self.bot = bot
+    
+    @commands.Cog.listener()
+    async def on_ready(self):
+        with open("beboplinks.txt", "rb") as beboplinks:
+            self.lines = list(beboplinks)
+            beboplinks.close()
+
+    @commands.command()
+    async def watchbebop(self, ctx, episode):
+        episodelink = self.lines[int(episode) - 1]
+        embed = discord.Embed(title=f"Episode {episode}", description="Watch Cowboy Bebop Here. Episode 7 doesn't work.", color=0x88B04B)
+        embed.add_field(name="Episode Link", value=f"[Episode {episode}]({episodelink.decode('utf-8')})", inline=False)
+        embed.set_footer(text="Provided to you by Anime Jacks Paradise")
+        embed.set_thumbnail(url="https://media0.giphy.com/media/4ilFRqgbzbx4c/giphy.gif")
+        await ctx.send(embed=embed)
+
     @commands.command()
     async def anisearch(self, ctx, *, query):
         """Gives you details on the queried anime. Make sure to spell correctly."""
@@ -567,7 +583,13 @@ class Search(commands.Cog):
         except Exception as e:
             print(e)
             await ctx.send("Sub doesn't exist!!!")
-        embed = discord.Embed(title=finalpost.title, description=finalpost.selftext, color=0x88B04B)
+        print(finalpost.permalink)
+        if not ctx.message.channel.is_nsfw():
+            if finalpost.over_18:
+                await ctx.send("Not an nsfw channel bud. Begone horny.")
+                return
+        embed = discord.Embed(title=finalpost.title, description=f"Upvotes: {finalpost.score}\n{finalpost.selftext}", color=0x88B04B, url=f"https://reddit.com{finalpost.permalink}")
+        embed.set_footer(text=f"{finalpost.author} posted this in r/{finalpost.subreddit.display_name}")
         print(finalpost.selftext, finalpost.url, finalpost.media_embed)
         req = urllib.request.Request(finalpost.url, method='HEAD', headers={'User-Agent': 'Mozilla/5.0'})
         r = urllib.request.urlopen(req)
@@ -1055,10 +1077,18 @@ class Help(commands.Cog):
                 await ctx.send(embed=embed)
                 return
             elif query == "ANIME":
-                embed = discord.Embed(title="Anime Help Menu", description="All the Music commands Bebot has.", color=0x88B04B)
+                embed = discord.Embed(title="Anime Help Menu", description="All the Anime commands Bebot has.", color=0x88B04B)
                 embed.set_thumbnail(url="https://i.pinimg.com/originals/01/2e/71/012e716ba09bab32c9f3ea163b7663af.gif")
                 embed.add_field(name="Anisearch", value="Get data of an anime by it's name. Spelling is very finnicky so try spelling it different ways. Capitalize the first letter.", inline=False)
                 embed.add_field(name="Anistream", value="Get a stream of an anime by its name and episode number. Summoned using b.anistream")
+                embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+                await ctx.send(embed=embed)
+                return
+            elif query == "GAMING":
+                embed = discord.Embed(title="Gaming Help Menu", description="All the Gaming commands Bebot has.", color=0x88B04B)
+                embed.set_thumbnail(url="https://i.pinimg.com/originals/01/2e/71/012e716ba09bab32c9f3ea163b7663af.gif")
+                embed.add_field(name="MW", value="Get your modern warfare stats based on platform(xbl, psn, acti) gamertag and gamemode(warzone, mp). IE b.mw xbl Halfblood1223", inline=False)
+                embed.add_field(name="Fortnite", value="Get your Fortnite stats based on platform(pc or console) server region(NAW, NAE, EU) and gamertag IE b.fortnite pc NAE Ninja", inline=False)
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
                 return
