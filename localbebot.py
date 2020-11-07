@@ -9,10 +9,10 @@ import bs4
 import praw
 import random
 import urllib
-from pretty_help import PrettyHelp, Navigation
 import datetime as dt
 import sys
-
+import pymongo
+from pymongo import MongoClient
 
 #setup
 intents = discord.Intents.default()
@@ -27,7 +27,6 @@ async def on_ready():
 
 class Mod(commands.Cog):
     """Moderation Commands"""
-    
     def __init__(self, bot):
         self.bot = bot
     
@@ -1110,6 +1109,102 @@ class Help(commands.Cog):
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
                 return
+class ModMail(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command()
+    async def ticket(self, ctx, *, ticketcontent):
+        post = {"user_id":str(ctx.author.id), "name":ctx.author.name, "ticketcontent":ticketcontent, "timecreated":dt.datetime.now(), "guild":ctx.guild.id, "type":"Ticket"}
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        collection.insert_one(post)
+        await ctx.send("Your ticket has been made!")
+        
+    @commands.has_permissions(manage_guild=True)
+    @commands.command()
+    async def warn(self, ctx, user: discord.Member, *, reason=None):
+        post = {"user_id":str(user.id), "name":user.name, "ticketcontent":reason, "timecreated":dt.datetime.now(), "guild":ctx.guild.id, "type":"Warning"}
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        collection.insert_one(post)
+        await ctx.send(f"{user.mention} has been warned. Be a good boy from now on.")
+        
+    @commands.has_permissions(manage_guild=True)
+    @commands.command()
+    async def gettickets(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        if user != None:
+            print(ctx.guild.id, type(ctx.guild.id), user.id, type(user.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Ticket", "user_id": str(user.id)}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Ticket", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Ticket Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+        else:
+            print(ctx.guild.id, type(ctx.guild.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Ticket"}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Ticket", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Ticket Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+    
+    @commands.has_permissions(manage_guild=True)
+    @commands.command()
+    async def getwarnings(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        if user != None:
+            print(ctx.guild.id, type(ctx.guild.id), user.id, type(user.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Warning", "user_id": str(user.id)}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Warning", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Warning Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+        else:
+            print(ctx.guild.id, type(ctx.guild.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Warning"}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Warning", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Warning Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+    @commands.has_permissions(manage_guild=True)    
+    @commands.command()
+    async def clearwarnings(self, ctx, user:discord.Member=None):
+        if user != None:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Warning", "user_id": str(user.id)})
+            await ctx.send(f"The users infractions were cleared. {user.mention} you have a fresh start.")
+        else:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Warning"})
+            await ctx.send(f"The infractions of this guild have been cleared.")
+    
+    @commands.has_permissions(manage_guild=True)        
+    @commands.command()
+    async def cleartickets(self, ctx, user:discord.Member=None):
+        if user != None:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Ticket", "user_id": str(user.id)})
+            await ctx.send(f"The users tickets were cleared. {user.mention} you have a fresh start.")
+        else:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Ticket"})
+            await ctx.send(f"The tickets of this guild have been cleared.")
+
 client.add_cog(Mod(client))
 client.add_cog(Music(client))
 client.add_cog(QueueSystem(client))
@@ -1125,4 +1220,5 @@ client.add_cog(Economy(client))
 client.add_cog(BlackJack(client))
 client.add_cog(XP(client))
 client.add_cog(Help(client))
+client.add_cog(ModMail(client))
 client.run('NzY5NDA5MTMwMzAwNDQwNTk2.X5OmFw.omDEZarxQyWWRY-Y2LPbEWjhi_0')
