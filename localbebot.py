@@ -411,8 +411,17 @@ class AnimeData(commands.Cog):
         return Plot, Rating, last_episode, Url
 
     async def anistream(self, query, episode):
-        query = query.replace(" ", "-")
-        return f"https://www9.gogoanimehub.tv/{query}-episode-{episode}"
+        query = query.replace(" ", "%20")
+        data = requests.get(f"https://www9.gogoanimehub.tv/search.html?keyword={query}").text
+        soup = bs4.BeautifulSoup(data, "html5lib")
+        links = soup.findAll('p', {"class":"name"})
+        y = 0
+        topthree = []
+        for x in links:
+            y += 1
+            topthree.append(x.find('a')["href"])
+            if y == 3:
+                return topthree
 class Anime(commands.Cog):
     """Anime Commands"""
     def __init__(self, bot):
@@ -459,10 +468,10 @@ class Anime(commands.Cog):
     @commands.command()
     async def anistream(self, ctx, episode, *, query):
         self.data = self.bot.get_cog('AnimeData')
-        url = await self.data.anistream(query, episode)
-        embed = discord.Embed(title=f"Results for {query}", description=url, color=0x88B04B)
-        embed.add_field(name="If this query didnt return a valid url then try adding tv to the end of it.", value="https://www9.gogoanimehub.tv", inline=False)
-        embed.set_thumbnail(url=url)
+        urls = await self.data.anistream(query, episode)
+        embed = discord.Embed(title=f"Results for {query}", description="Hosted on GoGoAnime", color=0x88B04B)
+        embed.add_field(name="Top Three Results", value=f"https://www9.gogoanimehub.tv{urls[0]}\nhttps://www9.gogoanimehub.tv{urls[1]}\nhttps://www9.gogoanimehub.tv{urls[2]}", inline=False)
+        embed.set_thumbnail(url="https://art.ngfiles.com/images/1045000/1045801_shademeadows_ed-edward-cowboy-bebop-gif.gif?f1570486791")
         await ctx.send(embed=embed)
 class GamingData(commands.Cog):
     def __init__(self, bot):
@@ -1047,8 +1056,9 @@ class Help(commands.Cog):
             embed.add_field(name="Music Commands", value="Commands for Playing Music", inline=False)
             embed.add_field(name="Anime Commands", value="Commands for Anime. Anything anime related is here.", inline=False)
             embed.add_field(name="Gaming Commands", value="Commands for Gaming. Do things like look up your stats or see active streams.", inline=False)
-            embed.add_field(name="Economy Commands", value="Commands for your $$$. Do things like play BlackJack and collect money daily", inline=False)
+            embed.add_field(name="Economy Commands", value="Commands for your $$$. Do things like play Games and collect money daily", inline=False)
             embed.add_field(name="XP Commands", value="Check what level you are and the top leaders of the Bebot Level game.", inline=False)
+            embed.add_field(name="User Support Commands", value="Get support from the server staff.", inline=False)
             embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
             await ctx.send(embed=embed)
             return
@@ -1065,6 +1075,7 @@ class Help(commands.Cog):
                 embed.add_field(name="Mute", value="Mutes the specified member. Gives them the mute role and text mutes them as well as voice muting them. If they are in a VC they need to leave before voice mute takes effect. Summoned using b.mute @person", inline=False)
                 embed.add_field(name="Unmute", value="Unmutes the specified member. Takes away the unmuted role. If they are in a VC they need to leave for it to be active. Turned on using b.welcome on #channelname and Turned off using b.welcome off #channelname", inline=False)
                 embed.add_field(name="Welcome", value="Sets up a welcome message for new members in a specified channel. Summoned using b.welcome on #textchannel or b.welcome off", inline=False)
+                embed.add_field(name="Get Warnings", value="Get the warnings of the entire guild or just the specific user. Summoned using b.getwarnings if you want the entire guild or b.getwarning @person to get the warnings of a specific user.", inline=False)
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
                 return
