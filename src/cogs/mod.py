@@ -2,6 +2,10 @@ import discord
 from discord.ext import commands
 import asyncio
 from asyncio import sleep
+import datetime as dt
+import pymongo
+from pymongo import MongoClient
+
 
 class Mod(commands.Cog):
     """Moderation Commands"""
@@ -131,6 +135,109 @@ class welcome(commands.Cog):
         print("Member Incoming------>")
         await self.channel.send(f"Welcome to **{member.guild.name}** {member.mention}")
 
+class ModMail(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command()
+    async def ticket(self, ctx, *, ticketcontent):
+        post = {"user_id":str(ctx.author.id), "name":ctx.author.name, "ticketcontent":ticketcontent, "timecreated":dt.datetime.now(), "guild":ctx.guild.id, "type":"Ticket"}
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        collection.insert_one(post)
+        await ctx.send("Your ticket has been made!")
+        
+    @commands.has_permissions(manage_guild=True)
+    @commands.command()
+    async def warn(self, ctx, user: discord.Member, *, reason=None):
+        post = {"user_id":str(user.id), "name":user.name, "ticketcontent":reason, "timecreated":dt.datetime.now(), "guild":ctx.guild.id, "type":"Warning"}
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        collection.insert_one(post)
+        await ctx.send(f"{user.mention} has been warned. Be a good boy from now on.")
+        
+    @commands.has_permissions(manage_guild=True)
+    @commands.command()
+    async def gettickets(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        if user != None:
+            print(ctx.guild.id, type(ctx.guild.id), user.id, type(user.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Ticket", "user_id": str(user.id)}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Ticket", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Ticket Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+        else:
+            print(ctx.guild.id, type(ctx.guild.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Ticket"}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Ticket", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Ticket Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+    
+    @commands.has_permissions(manage_guild=True)
+    @commands.command()
+    async def getwarnings(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        if user != None:
+            print(ctx.guild.id, type(ctx.guild.id), user.id, type(user.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Warning", "user_id": str(user.id)}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Warning", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Warning Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+        else:
+            print(ctx.guild.id, type(ctx.guild.id))
+            for post in collection.find({"guild":ctx.guild.id, "type":"Warning"}):
+                name = post["name"]
+                content = post["ticketcontent"]
+                time = post["timecreated"].strftime("%m/%d/%Y")
+                embed = discord.Embed(title=f"{name}s Warning", description=f"Created on {time}", color=0x0FCF55)
+                embed.add_field(name="Warning Info", value=content, inline=False)
+                await ctx.send(embed=embed)
+            return
+    @commands.has_permissions(manage_guild=True)    
+    @commands.command()
+    async def clearwarnings(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        if user != None:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Warning", "user_id": str(user.id)})
+            await ctx.send(f"The users infractions were cleared. {user.mention} you have a fresh start.")
+        else:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Warning"})
+            await ctx.send(f"The infractions of this guild have been cleared.")
+    
+    @commands.has_permissions(manage_guild=True)        
+    @commands.command()
+    async def cleartickets(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
+        if user != None:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Ticket", "user_id": str(user.id)})
+            await ctx.send(f"The users tickets were cleared. {user.mention} you have a fresh start.")
+        else:
+            collection.delete_many({"guild":ctx.guild.id, "type":"Ticket"})
+            await ctx.send(f"The tickets of this guild have been cleared.")
+
 
 def setup(bot):
     bot.add_cog(Mod(bot))
+    bot.add_cog(ModMail(bot))
