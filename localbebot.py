@@ -83,14 +83,12 @@ class Mod(commands.Cog):
         print(type(user), user)
         await ctx.guild.unban(user)
         await ctx.send(f"{user.mention} has been unbanned. You lucky bastard.")
-        await member.send(f"You have been unbanned from {ctx.guild.name}! Tread lightly...")
+        await user.send(f"You have been unbanned from {ctx.guild.name}! Tread lightly...")
     
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def mute(self, ctx, member : discord.Member):
         """Mute the specified member."""
-        role = discord.utils.get(ctx.guild.roles, name="Muted") # retrieves muted role returns none if there isn't 
-        hell = discord.utils.get(ctx.guild.text_channels, name="hell") # retrieves channel named hell returns none if there isn't
         if not role: # checks if there is muted role
             muted = await ctx.guild.create_role(name="Muted", reason="To use for muting")
             for channel in ctx.guild.channels: # removes permission to view and send in the channels 
@@ -1199,6 +1197,9 @@ class ModMail(commands.Cog):
     @commands.has_permissions(manage_guild=True)    
     @commands.command()
     async def clearwarnings(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
         if user != None:
             collection.delete_many({"guild":ctx.guild.id, "type":"Warning", "user_id": str(user.id)})
             await ctx.send(f"The users infractions were cleared. {user.mention} you have a fresh start.")
@@ -1209,6 +1210,9 @@ class ModMail(commands.Cog):
     @commands.has_permissions(manage_guild=True)        
     @commands.command()
     async def cleartickets(self, ctx, user:discord.Member=None):
+        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        db = cluster["Bebot"]
+        collection = db["Mod"]
         if user != None:
             collection.delete_many({"guild":ctx.guild.id, "type":"Ticket", "user_id": str(user.id)})
             await ctx.send(f"The users tickets were cleared. {user.mention} you have a fresh start.")
