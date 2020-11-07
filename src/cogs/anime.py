@@ -56,7 +56,7 @@ class Anime(commands.Cog):
     
     @commands.Cog.listener()
     async def on_ready(self):
-        with open("src/files/beboplinks.txt", "rb") as beboplinks:
+        with open("beboplinks.txt", "rb") as beboplinks:
             self.lines = list(beboplinks)
             beboplinks.close()
 
