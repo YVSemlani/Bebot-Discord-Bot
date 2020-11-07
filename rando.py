@@ -238,6 +238,7 @@ class Music(commands.Cog):
         self.bot.QueueSystem = self.bot.get_cog('QueueSystem')
         for guild in self.bot.guilds:
             await self.bot.QueueSystem.newqueue(guild.id)
+        await sleep(20)
         await self.bot.wavelink.initiate_node(host=lavahost,
                                               port=2333,
                                               rest_uri=f'http://{lavahost}:2333',

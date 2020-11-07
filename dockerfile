@@ -5,6 +5,6 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 #get source 
-copy . .
+COPY . .
 #run the file
 CMD ["python", "rando.py"]
