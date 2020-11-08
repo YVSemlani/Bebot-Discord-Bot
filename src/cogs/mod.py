@@ -5,6 +5,7 @@ from asyncio import sleep
 import datetime as dt
 import pymongo
 from pymongo import MongoClient
+import os
 
 
 class Mod(commands.Cog):
@@ -138,11 +139,14 @@ class welcome(commands.Cog):
 class ModMail(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.MONGOCONNECT = os.getenv("MONGOCONNECT")
     @commands.command()
     async def ticket(self, ctx, *, ticketcontent):
         post = {"user_id":str(ctx.author.id), "name":ctx.author.name, "ticketcontent":ticketcontent, "timecreated":dt.datetime.now(), "guild":ctx.guild.id, "type":"Ticket"}
-        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        cluster = pymongo.MongoClient(self.MONGOCONNECT)
         db = cluster["Bebot"]
         collection = db["Mod"]
         collection.insert_one(post)
@@ -152,7 +156,7 @@ class ModMail(commands.Cog):
     @commands.command()
     async def warn(self, ctx, user: discord.Member, *, reason=None):
         post = {"user_id":str(user.id), "name":user.name, "ticketcontent":reason, "timecreated":dt.datetime.now(), "guild":ctx.guild.id, "type":"Warning"}
-        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        cluster = pymongo.MongoClient(self.MONGOCONNECT)
         db = cluster["Bebot"]
         collection = db["Mod"]
         collection.insert_one(post)
@@ -161,7 +165,7 @@ class ModMail(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def gettickets(self, ctx, user:discord.Member=None):
-        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        cluster = pymongo.MongoClient(self.MONGOCONNECT)
         db = cluster["Bebot"]
         collection = db["Mod"]
         if user != None:
@@ -188,7 +192,7 @@ class ModMail(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def getwarnings(self, ctx, user:discord.Member=None):
-        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        cluster = pymongo.MongoClient(self.MONGOCONNECT)
         db = cluster["Bebot"]
         collection = db["Mod"]
         if user != None:
@@ -214,7 +218,7 @@ class ModMail(commands.Cog):
     @commands.has_permissions(manage_guild=True)    
     @commands.command()
     async def clearwarnings(self, ctx, user:discord.Member=None):
-        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        cluster = pymongo.MongoClient(self.MONGOCONNECT)
         db = cluster["Bebot"]
         collection = db["Mod"]
         if user != None:
@@ -227,7 +231,7 @@ class ModMail(commands.Cog):
     @commands.has_permissions(manage_guild=True)        
     @commands.command()
     async def cleartickets(self, ctx, user:discord.Member=None):
-        cluster = pymongo.MongoClient("mongodb+srv://bebot:Yashveer1@bebot.qpm5l.mongodb.net/<dbname>?retryWrites=true&w=majority")
+        cluster = pymongo.MongoClient(self.MONGOCONNECT)
         db = cluster["Bebot"]
         collection = db["Mod"]
         if user != None:
