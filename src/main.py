@@ -5,6 +5,7 @@ import os
 import pymongo
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from asyncio import sleep
 
 #setup
 intents = discord.Intents.default()
