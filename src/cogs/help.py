@@ -74,6 +74,7 @@ class Help(commands.Cog):
                 embed.add_field(name="ToHand", value="Send money from your bank to your hand. Summoned using b.tohand amount.", inline=False)
                 embed.add_field(name="ToBank", value="Send money from your hand to your bank. Summoned using b.tobank amount.", inline=False)
                 embed.add_field(name="Balance/Bal", value="Get the balance of yourself, another player, or the leaderboards. Defaults to you. Summoned using b.bal @person or b.bal or b.bal all", inline=False)
+                embed.add_field(name="Random Number Game", value="Get whatever the dealer got times what you bet in rewards if you win the random number game. Summoned using b.gamblenums amount", inline=False)
                 embed.add_field(name="BlackJack", value="Play a game of BlackJack for up to double your cash. Summoned using b.bj amount", inline=False)
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
