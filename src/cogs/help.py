@@ -8,7 +8,7 @@ class Help(commands.Cog):
     @commands.command()
     async def help(self, ctx, query=None):
         if query == None:
-            embed = discord.Embed(title="Bebot Help Menu", description="Everything Bebot can do.", color=0x88B04B)
+            embed = discord.Embed(title="Bebot Help Menu", description="Everything Bebot can do.", color=0x88B04B, url="http://web.bebot.tech")
             embed.set_thumbnail(url="https://i.pinimg.com/originals/01/2e/71/012e716ba09bab32c9f3ea163b7663af.gif")
             embed.add_field(name="Mod Commands", value="Commands available only to people with permission to do these things manually. Useful for Moderators.", inline=False)
             embed.add_field(name="Music Commands", value="Commands for Playing Music", inline=False)

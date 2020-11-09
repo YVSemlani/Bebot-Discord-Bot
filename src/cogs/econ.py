@@ -82,12 +82,12 @@ class UserBalance(commands.Cog):
             print(user)
             mention = await self.bot.fetch_user(user[0])
             amount = user[1]
-            banktop.add_field(name=f"{mention.name}s Balance", value=f"Amount: {amount}$$$", inline=False)
+            banktop.add_field(name=f"{mention.name}s Balance", value=f"Amount: {amount} woolongs", inline=False)
         for user in self.tophand:
             print(user)
             mention = await self.bot.fetch_user(user[0])
             amount = user[1]
-            handtop.add_field(name=f"{mention.name}s Balance", value=f"Amount: {amount}$$$", inline=False)
+            handtop.add_field(name=f"{mention.name}s Balance", value=f"Amount: {amount} woolongs", inline=False)
         return banktop, handtop
 
 class BlackJack(commands.Cog):
@@ -165,7 +165,7 @@ class BlackJack(commands.Cog):
         self.games[author.id]["dealerhand"] = await self.deal(self.games[author.id]["bjdeck"])
         self.games[author.id]["playerhand"] = await self.deal(self.games[author.id]["bjdeck"])
         self.games[author.id]["total"] = await self.total(self.games[author.id]["playerhand"])
-        self.games[author.id]["embed"] = discord.Embed(title=f"{author.name}s BJ game", description=f"Playing for {amount}$", color=0x88B04B)
+        self.games[author.id]["embed"] = discord.Embed(title=f"{author.name}s BJ game", description=f"Playing for {amount} woolongs", color=0x88B04B)
         self.games[author.id]["embed"].add_field(name=f"Dealer is showing", value=f"**{self.games[author.id][dealerhand]}**", inline=False)
         self.games[author.id]["embed"].add_field(name=f"Your hand is", value=f"**{self.games[author.id][playerhand]}**", inline=False)
         self.games[author.id]["hit"] = None
@@ -190,7 +190,7 @@ class BlackJack(commands.Cog):
         if self.games[author.id]["total"] > 21:
             self.games[author.id]["state"] = await self.score(self.games[author.id]["dealerhand"], self.games[author.id]["playerhand"])
             self.games[author.id]["embed"].add_field(name=f"Dealer is showing", value=f'**{self.games[author.id][dealerhand]}**', inline=False)  
-            self.games[author.id]["embed"].add_field(name=self.games[author.id]["state"], value=f"**{amount}$$$**", inline=False)
+            self.games[author.id]["embed"].add_field(name=self.games[author.id]["state"], value=f"**{amount} woolongs**", inline=False)
             await self.games[author.id]["message"].edit(embed=self.games[author.id]["embed"])
             return self.games[author.id]["state"]
         self.games[author.id]["totaldealer"] = await self.total(self.games[author.id]["dealerhand"])
@@ -201,7 +201,7 @@ class BlackJack(commands.Cog):
         if "Win" in self.games[author.id]["state"] and "BlackJack" in self.games[author.id]["state"]:
             amount = amount * 2
         self.games[author.id]["embed"].add_field(name=f"Dealer is showing", value=f"**{self.games[author.id][dealerhand]}**", inline=False)
-        self.games[author.id]["embed"].add_field(name=self.games[author.id]["state"], value=f"**{amount}$$$**", inline=False)
+        self.games[author.id]["embed"].add_field(name=self.games[author.id]["state"], value=f"**{amount} woolongs**", inline=False)
         await self.games[author.id]["message"].edit(embed=self.games[author.id]["embed"])
         return self.games[author.id]["state"]
     
@@ -324,7 +324,45 @@ class Economy(commands.Cog):
         if "Lose" in state:
             await self.UB.extract(ctx.author.id, "hand", int(amount))
             return
-
+    @commands.command()
+    async def gamblenums(self, ctx, amount):
+        if int(amount) < 0:
+            await ctx.send("You think your smart huh. You cant cheat the almighty Bebot.")
+            return
+        try:
+            await self.UB.get_user(ctx.author.id)
+        except:
+            await self.UB.create_user(ctx.author.id)
+        avail = await self.UB.validateavailable(ctx.author.id, "hand", int(amount))
+        if not avail:
+            await ctx.send("Hold your horses big better. You don't have the facilities for that.")
+            return
+        playernum = random.randint(0, 1000)
+        dealernum = random.randint(0, 1000)
+        if playernum > dealernum:
+            win = True
+        elif playernum < dealernum:
+            win = False
+        else:
+            win = None
+        if win:
+            print(int(amount)* dealernum)
+            embed = discord.Embed(title=f"{ctx.author.name}s number game", description=f"You won the game for a winning of {int(amount) * dealernum // 2} woolongs", color=0x88B04B)
+            embed.add_field(name="Player Number", value=playernum)
+            embed.add_field(name="Dealer Number", value=dealernum)
+            await ctx.send(embed=embed)
+            await self.UB.deposit(ctx.author.id, "hand", int(amount) * dealernum // 2)
+        elif win == None:
+            embed = discord.Embed(title=f"{ctx.author.name}s number game", description=f"You tied the game for a loss of 0 woolongs", color=0x88B04B)
+            embed.add_field(name="Player Number", value=playernum)
+            embed.add_field(name="Dealer Number", value=dealernum)
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(title=f"{ctx.author.name}s number game", description=f"You lost the game for a loss of {amount} woolongs", color=0x88B04B)
+            embed.add_field(name="Player Number", value=playernum)
+            embed.add_field(name="Dealer Number", value=dealernum)
+            await ctx.send(embed=embed)
+            await self.UB.extract(ctx.author.id, "hand", int(amount))
     @commands.command()
     async def tohand(self, ctx, amount):
         try:
@@ -336,7 +374,7 @@ class Economy(commands.Cog):
         if avail:
             await self.UB.extract(ctx.author.id, "bank", int(amount))
             await self.UB.deposit(ctx.author.id, "hand", int(amount))
-            await ctx.send(f"{amount}$ was transferred to your hand.")
+            await ctx.send(f"{amount} woolongs was transferred to your hand.")
         else:
             await ctx.send("Sry but you dont have the funds for that ")
             
@@ -351,7 +389,7 @@ class Economy(commands.Cog):
         if avail:
             await self.UB.extract(ctx.author.id, "hand", int(amount))
             await self.UB.deposit(ctx.author.id, "bank", int(amount))
-            await ctx.send(f"{amount}$ was transferred to your bank.")
+            await ctx.send(f"{amount} woolongs was transferred to your bank.")
         else:
             await ctx.send("Sry but you dont have the funds for that ")
 
