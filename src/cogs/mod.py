@@ -6,7 +6,7 @@ import datetime as dt
 import pymongo
 from pymongo import MongoClient
 import os
-
+from profanity_check import predict, predict_prob
 
 class Mod(commands.Cog):
     """Moderation Commands"""
@@ -124,6 +124,28 @@ class Mod(commands.Cog):
         else:
             await ctx.send("You didn't put in a valid value.")
             return
+    
+    @commands.command()
+    async def cursemod(self, ctx, state):
+        state = state.upper()
+        if state == "ON":
+            self.bot.add_cog(cursefilter(self.bot))
+            await ctx.send("Curse Filter is now on.")
+        elif state == "OFF":
+            self.bot.remove_cog('cursefilter')
+            await ctx.send("Cursefilter is now off")
+        else:
+            return 
+
+class cursefilter(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if predict_prob([message.content]) > 0.65:
+            await message.delete()
+            await message.channel.send("Stop cursing this server doesn't allow it.")
             
 class welcome(commands.Cog):
     """Welcome Message"""

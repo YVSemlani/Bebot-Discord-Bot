@@ -79,6 +79,23 @@ class Help(commands.Cog):
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
                 return
+            elif query == "XP":
+                embed = discord.Embed(title="XP Help Menu", description="All the XP commands Bebot has.", color=0x88B04B)
+                embed.set_thumbnail(url="https://i.pinimg.com/originals/62/30/95/623095110d323dfbd3d42ce3c9c05ff9.gif")
+                embed.add_field(name="Level", value="Get your level in the Bebot levels game. Summoned using b.level")
+                embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+                await ctx.send(embed=embed)
+                return
+            elif query == "SEARCH":
+                embed = discord.Embed(title="Search Help Menu", description="All the Search commands Bebot has.", color=0x88B04B)
+                embed.set_thumbnail(url="https://media1.giphy.com/media/eeYbfcTxoxGlG/giphy.gif")
+                embed.add_field(name="RSearch", value="Search reddit communities for the hottest posts. Summoned using b.rsearch")
+                embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+                await ctx.send(embed=embed)
+                return
+            else:
+                await ctx.send("Invalid Query")
+                return
 
 def setup(bot):
     bot.add_cog(Help(bot))
