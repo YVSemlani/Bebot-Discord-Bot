@@ -6,6 +6,7 @@ class XP(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.users = {}
+        self.state = True
         self.levels = {}
         self.userlevel = {}
     @commands.Cog.listener()
@@ -16,10 +17,13 @@ class XP(commands.Cog):
     async def on_message(self, message):
         if message.author == self.bot.user:
             return
+        if not self.state:
+            return
         try:
             self.users[message.author.id] += 2.5
         except:
             self.users[message.author.id] = 0
+        print(self.users[message.author.id])
         if self.users[message.author.id] in self.levels.keys():
             self.userlevel[message.author.id] = self.levels[self.users[message.author.id]]
             await message.channel.send(f"{message.author.mention} has attained {self.levels[self.users[message.author.id]]}")
@@ -40,6 +44,14 @@ class XP(commands.Cog):
             level = self.userlevel[user.id]
         embed = discord.Embed(title=f"{user.name} is {level}", description="Each level requires 100 points. You get 2.5 points per message you send.", color=0x88B04B)
         await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def xpchange(self, ctx, state):
+        state = state.upper()
+        if state == "ON":
+            self.state = True
+        if state == "OFF":
+            self.state = False
 
 def setup(bot):
     bot.add_cog(XP(bot))

@@ -6,7 +6,7 @@ import datetime as dt
 import pymongo
 from pymongo import MongoClient
 import os
-from profanity_check import predict, predict_prob
+from profanity import profanity
 
 class Mod(commands.Cog):
     """Moderation Commands"""
@@ -67,7 +67,11 @@ class Mod(commands.Cog):
         await ctx.guild.unban(user)
         await ctx.send(f"{user.mention} has been unbanned. You lucky bastard.")
         await user.send(f"You have been unbanned from {ctx.guild.name}! Tread lightly...")
-    
+    @commands.command()
+    async def softban(self, ctx, user: discord.Member, reason=None):
+        await user.ban(reason=reason)
+        await ctx.guild.unban(user)
+        await ctx.send(f"{user.mention} has been softbanned")
     @commands.has_permissions(manage_guild=True)
     @commands.command()
     async def mute(self, ctx, member : discord.Member):
@@ -129,9 +133,16 @@ class Mod(commands.Cog):
     async def cursemod(self, ctx, state):
         state = state.upper()
         if state == "ON":
+            try:
+                if self.on:
+                    await ctx.send("Curse Mod is already on")
+            except:
+                pass
             self.bot.add_cog(cursefilter(self.bot))
+            self.on = True
             await ctx.send("Curse Filter is now on.")
         elif state == "OFF":
+            self.on = False 
             self.bot.remove_cog('cursefilter')
             await ctx.send("Cursefilter is now off")
         else:
@@ -143,7 +154,9 @@ class cursefilter(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if predict_prob([message.content]) > 0.65:
+        custom_badwords = ["bitch", "shit", "ass", "dumbass"]                           
+        profanity.load_words(custom_badwords)
+        if profanity.contains_profanity(message.content):
             await message.delete()
             await message.channel.send("Stop cursing this server doesn't allow it.")
             

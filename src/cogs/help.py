@@ -93,6 +93,8 @@ class Help(commands.Cog):
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
                 return
+            elif query == "SUPPORT":
+                
             else:
                 await ctx.send("Invalid Query")
                 return
