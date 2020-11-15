@@ -28,6 +28,7 @@ class AnimeData(commands.Cog):
         return ids[-1]
     async def anidetails(self, ident):
         data = requests.get("https://cdn.animenewsnetwork.com/encyclopedia/api.xml?anime=" + ident).text
+        print(data)
         ani = bs4.BeautifulSoup(data, 'lxml')
         Plot = ani.find('info', {'type':'Plot Summary'}).text
         Plot = Plot[: len(Plot) - len("<em class=de-emphasized>(from manga)</em>") - 1]
@@ -38,7 +39,7 @@ class AnimeData(commands.Cog):
 
     async def anistream(self, query, episode):
         query = query.replace(" ", "%20")
-        data = requests.get(f"https://www9.gogoanimehub.tv/search.html?keyword={query}").text
+        data = requests.get(f"https://www4.gogoanime.pro/search.html?keyword={query}").text
         soup = bs4.BeautifulSoup(data, "html5lib")
         links = soup.findAll('p', {"class":"name"})
         y = 0

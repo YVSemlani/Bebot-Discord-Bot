@@ -8,13 +8,14 @@ class GamingData(commands.Cog):
     
     async def mw_stats(self, platform, gamertag, gamemode="multiplayer"):
         try:
+            oggamertag = gamertag
+            gamertag = gamertag.replace("#", "%2523")
             url = "https://call-of-duty-modern-warfare.p.rapidapi.com/"+ gamemode + "/" + gamertag + "/" + platform
             print(url)
             headers = {
                 'x-rapidapi-host': "call-of-duty-modern-warfare.p.rapidapi.com",
                 'x-rapidapi-key': "cd8c290237msh39bd52e46714afbp19b68fjsncb8e461fb479"
                 }
-
             response = requests.get(url, headers=headers).json()
             print(response)
             if gamemode == "multiplayer":
@@ -22,7 +23,7 @@ class GamingData(commands.Cog):
                 KD = data["kdRatio"]
                 Accuracy = data["accuracy"]
                 RecordKills = data["recordKillsInAMatch"]
-                stats = discord.Embed(title=gamertag + "'s Multiplayer Stats", description="The true test of a man!!", color=0x88B04B)
+                stats = discord.Embed(title=oggamertag + "'s Multiplayer Stats", description="The true test of a man!!", color=0x88B04B)
                 stats.add_field(name="KD", value=str(KD), inline=False)
                 stats.add_field(name="Accuracy", value=str(Accuracy), inline=False)
                 stats.add_field(name="RecordKills", value=str(RecordKills), inline=False)
@@ -32,7 +33,7 @@ class GamingData(commands.Cog):
                 KD = data["kdRatio"]
                 Kills = data["kills"]
                 Wins = data["wins"]
-                stats = discord.Embed(title=gamertag + "'s Warzone Stats", description="The true test of a man!!", color=0x88B04B)
+                stats = discord.Embed(title=oggamertag + "'s Warzone Stats", description="The true test of a man!!", color=0x88B04B)
                 stats.add_field(name="KD", value=str(KD), inline=False)
                 stats.add_field(name="Total Kills", value=str(Kills), inline=False)
                 stats.add_field(name="Wins", value=str(Wins), inline=False)
@@ -54,7 +55,7 @@ class Gaming(commands.Cog):
         self.data = self.bot.get_cog('GamingData')
 
     @commands.command()
-    async def mw(self, ctx, platform, gamertag, gamemode):
+    async def mw(self, ctx, platform, gamertag, gamemode="multiplayer"):
         """Gets your Call of Duty Modern Warfare stats"""
         stats = await self.data.mw_stats(platform, gamertag, gamemode)
         if type(stats) != str:

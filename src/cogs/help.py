@@ -62,7 +62,7 @@ class Help(commands.Cog):
             elif query == "GAMING":
                 embed = discord.Embed(title="Gaming Help Menu", description="All the Gaming commands Bebot has.", color=0x88B04B)
                 embed.set_thumbnail(url="https://i.imgur.com/jEsFoj9.gif")
-                embed.add_field(name="MW", value="Get your modern warfare stats based on platform(xbl, psn, acti) gamertag and gamemode(warzone, mp). IE b.mw xbl Halfblood1223", inline=False)
+                embed.add_field(name="MW", value="Get your modern warfare stats based on platform(xbl, psn, acti) gamertag and gamemode(warzone, mp). IE b.mw xbl Halfblood1223 warzone", inline=False)
                 embed.add_field(name="Fortnite", value="Get your Fortnite stats based on platform(pc or console) server region(NAW, NAE, EU) and gamertag IE b.fortnite pc NAE Ninja", inline=False)
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
@@ -71,6 +71,7 @@ class Help(commands.Cog):
                 embed = discord.Embed(title="Economy Help Menu", description="All the Economy commands Bebot has.", color=0x88B04B)
                 embed.set_thumbnail(url="https://i.pinimg.com/originals/bb/a9/ed/bba9ed0e94dc334cdc385122ecdacc13.gif")
                 embed.add_field(name="Daily", value="Get your 5000 woolongs every 24 hours. Summoned using b.daily", inline=False)
+                embed.add_field(name="Give", value="Give the specified user your money. Summoned using b.give @person amount")
                 embed.add_field(name="ToHand", value="Send money from your bank to your hand. Summoned using b.tohand amount.", inline=False)
                 embed.add_field(name="ToBank", value="Send money from your hand to your bank. Summoned using b.tobank amount.", inline=False)
                 embed.add_field(name="Balance/Bal", value="Get the balance of yourself, another player, or the leaderboards. Defaults to you. Summoned using b.bal @person or b.bal or b.bal all", inline=False)
@@ -94,7 +95,9 @@ class Help(commands.Cog):
                 await ctx.send(embed=embed)
                 return
             elif query == "SUPPORT":
-                
+                embed = discord.Embed(title="Support Help Menu", description="All the Support commands Bebot has.", color=0x88B04B)
+                embed.set_thumbnail(url="https://media1.giphy.com/media/eeYbfcTxoxGlG/giphy.gif")
+                embed.add_field(name="Ticket", value="Create a support ticket. Summoned using b.ticket content", inline=False)
             else:
                 await ctx.send("Invalid Query")
                 return

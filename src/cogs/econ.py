@@ -199,7 +199,7 @@ class BlackJack(commands.Cog):
             self.games[author.id]["totaldealer"] = await self.total(self.games[author.id]["dealerhand"])
         self.games[author.id]["state"] = await self.score(self.games[author.id][dealerhand], self.games[author.id][playerhand])
         if "Win" in self.games[author.id]["state"] and "BlackJack" in self.games[author.id]["state"]:
-            amount = amount * 2
+            amount = int(amount) * 2
         self.games[author.id]["embed"].add_field(name=f"Dealer is showing", value=f"**{self.games[author.id][dealerhand]}**", inline=False)
         self.games[author.id]["embed"].add_field(name=self.games[author.id]["state"], value=f"**{amount} woolongs**", inline=False)
         await self.games[author.id]["message"].edit(embed=self.games[author.id]["embed"])
@@ -337,8 +337,8 @@ class Economy(commands.Cog):
         if not avail:
             await ctx.send("Hold your horses big better. You don't have the facilities for that.")
             return
-        playernum = random.randint(0, 1000)
-        dealernum = random.randint(0, 1000)
+        playernum = random.randint(1, 10)
+        dealernum = random.randint(1, 10)
         if playernum > dealernum:
             win = True
         elif playernum < dealernum:
@@ -347,11 +347,11 @@ class Economy(commands.Cog):
             win = None
         if win:
             print(int(amount)* dealernum)
-            embed = discord.Embed(title=f"{ctx.author.name}s number game", description=f"You won the game for a winning of {int(amount) * dealernum // 2} woolongs", color=0x88B04B)
+            embed = discord.Embed(title=f"{ctx.author.name}s number game", description=f"You won the game for a winning of {int(amount) * dealernum} woolongs", color=0x88B04B)
             embed.add_field(name="Player Number", value=playernum)
             embed.add_field(name="Dealer Number", value=dealernum)
             await ctx.send(embed=embed)
-            await self.UB.deposit(ctx.author.id, "hand", int(amount) * dealernum // 2)
+            await self.UB.deposit(ctx.author.id, "hand", int(amount) * dealernum)
         elif win == None:
             embed = discord.Embed(title=f"{ctx.author.name}s number game", description=f"You tied the game for a loss of 0 woolongs", color=0x88B04B)
             embed.add_field(name="Player Number", value=playernum)
