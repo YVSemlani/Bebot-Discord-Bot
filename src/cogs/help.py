@@ -31,9 +31,14 @@ class Help(commands.Cog):
                 embed.add_field(name="Ban", value="Bans specified member from the server. b.ban @person", inline=False)
                 embed.add_field(name="Unban", value="Unbans the specified member from the server. Takes in an @mention or an id number. An id is not the 4 digits at the end of a username. Summoned using b.unban userid", inline=False)
                 embed.add_field(name="Mute", value="Mutes the specified member. Gives them the mute role and text mutes them as well as voice muting them. If they are in a VC they need to leave before voice mute takes effect. Summoned using b.mute @person", inline=False)
+                embed.add_field(name="Softban", value="Bans and then subsequently unbans the @mentioned user. Summoned using b.softban @person")
                 embed.add_field(name="Unmute", value="Unmutes the specified member. Takes away the unmuted role. If they are in a VC they need to leave for it to be active. Turned on using b.welcome on #channelname and Turned off using b.welcome off #channelname", inline=False)
                 embed.add_field(name="Welcome", value="Sets up a welcome message for new members in a specified channel. Summoned using b.welcome on #textchannel or b.welcome off", inline=False)
+                embed.add_field(name="CurseMod", value="Sets up a curse moderator that filters cursing in the server. Summoned using b.cursemod on to turn on and off to turn off.", inline=False)
+                embed.add_field(name="Get Tickets", value="Get the tickets of a user by using b.gettickets @person or the whole guilds with b.gettickets", inline=False)
+                embed.add_field(name="Warn", value="Warn the specified user by using b.warn @user", inline=False)
                 embed.add_field(name="Get Warnings", value="Get the warnings of the entire guild or just the specific user. Summoned using b.getwarnings if you want the entire guild or b.getwarning @person to get the warnings of a specific user.", inline=False)
+                embed.add_field(name="Clear Warnings/Tickets", value="Clear warnings with b.clearwarnings. Clear tickets with b.clear tickets. Specify a user to clear for with b.cleartickets @user or b.clearwarnings @user", inline=False)
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
                 await ctx.send(embed=embed)
                 return
@@ -44,7 +49,7 @@ class Help(commands.Cog):
                 embed.add_field(name="Leave/Stop", value="Leaves the bots current voice channel. Summoned using b.leave or b.stop", inline=False)
                 embed.add_field(name="Play", value="Play the specified song. Use b.play dont stop believing or b.play url", inline=False)
                 embed.add_field(name="Pause", value="Pause the current playing song. Summoned using b.pause", inline=False)
-                embed.add_field(name="Unpause/Resume", value="Resume the current paused song. Summoned using b.resume of b.unpause", inline=False)
+                embed.add_field(name="Resume", value="Resume the current paused song. Summoned using b.resume of b.unpause", inline=False)
                 embed.add_field(name="Queue", value="Show the current queue. Summoned using b.queue", inline=False)
                 embed.add_field(name="Volume", value="Set the volume of the current player to a number. IE b.volume 10 sets the volume to 10.")
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
@@ -85,6 +90,7 @@ class Help(commands.Cog):
                 embed.set_thumbnail(url="https://i.pinimg.com/originals/62/30/95/623095110d323dfbd3d42ce3c9c05ff9.gif")
                 embed.add_field(name="Level", value="Get your level in the Bebot levels game. Summoned using b.level")
                 embed.set_footer(text="b.help <category> returns all the commands in a category. For example b.help mod returns all the Mod commands")
+                embed.add_field(name="XP Change", value="Toggle XP off if you must using b.xpchange off and to turn back on use b.xpchange on", inline=False)
                 await ctx.send(embed=embed)
                 return
             elif query == "SEARCH":

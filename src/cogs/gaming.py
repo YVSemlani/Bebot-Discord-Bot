@@ -39,7 +39,7 @@ class GamingData(commands.Cog):
                 stats.add_field(name="Wins", value=str(Wins), inline=False)
                 return stats        
         except:
-            return "Error was detected. Fuck off or Try Again."
+            return "Error was detected. F*** off or Try Again."
         
     async def fortnite_stats(self, platform, region, epic):
         headers = {"TRN-Api-Key":"8a2ff3e2-5160-486b-a42b-4f8f68f6315f"}

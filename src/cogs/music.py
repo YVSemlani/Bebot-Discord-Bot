@@ -194,7 +194,7 @@ class Music(commands.Cog):
         player = self.bot.wavelink.get_player(ctx.guild.id)
         await player.stop()
         
-    @commands.command(aliases=["resume"])
+    @commands.command(aliases=["resume", "unpause"])
     async def pause(self, ctx):
         """Pause or Unpause the current playing song."""
         queue = await self.bot.QueueSystem.get_queue(ctx.guild.id)
