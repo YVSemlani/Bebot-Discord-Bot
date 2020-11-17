@@ -14,7 +14,7 @@ class GamingData(commands.Cog):
             print(url)
             headers = {
                 'x-rapidapi-host': "call-of-duty-modern-warfare.p.rapidapi.com",
-                'x-rapidapi-key': "cd8c290237msh39bd52e46714afbp19b68fjsncb8e461fb479"
+                'x-rapidapi-key': "YOUR TOKEN HERE"
                 }
             response = requests.get(url, headers=headers).json()
             print(response)
@@ -42,7 +42,7 @@ class GamingData(commands.Cog):
             return "Error was detected. F*** off or Try Again."
         
     async def fortnite_stats(self, platform, region, epic):
-        headers = {"TRN-Api-Key":"8a2ff3e2-5160-486b-a42b-4f8f68f6315f"}
+        headers = {"TRN-Api-Key":"YOUR KEY HERE"}
         data = requests.get(f"https://api.fortnitetracker.com/v1/powerrankings/{platform}/{region}/{epic}", headers=headers)
         return data.json()
 class Gaming(commands.Cog):
